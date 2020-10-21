@@ -9,8 +9,8 @@
     "start:watch": "nodemon",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "tuxmachine",
+  "license": "UNLICENCED",
   "dependencies": {
     "express": "^4.17.1",
     "nodemon": "^2.0.6",
