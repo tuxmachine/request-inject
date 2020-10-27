@@ -1,6 +1,6 @@
 import { Request } from 'express';
 import { Body, Controller, Req, Route } from '../lib';
-import { GreetingBody } from './schemas/hello-name.schema';
+import { GreetingBody, GreetingResponse } from './schemas/hello-name.schema';
 
 @Controller()
 export class HelloWorld {
@@ -11,8 +11,9 @@ export class HelloWorld {
   }
 
   @Route({ method: 'post' })
-  public greeting(@Body() body: GreetingBody) {
+  public async greeting(@Body() body: GreetingBody): Promise<GreetingResponse> {
     console.log(body);
+    await 1;
     return {
       greeting: 'Hello ' + body.name,
     };

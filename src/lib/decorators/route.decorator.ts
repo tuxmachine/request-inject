@@ -1,6 +1,7 @@
+import { validate } from 'class-validator';
 import { Request, Response, Router } from 'express';
 import { BadRequestException } from '../errors/bad-request.error';
-import { getBodyArgIndex, validateBody } from './body.decorator';
+import { getBodyArgIndex } from './body.decorator';
 import { getRequestArgIndex } from './request.decorator';
 import { getResponseArgIndex } from './response.decorator';
 
@@ -60,6 +61,7 @@ function RouteHandler(ctrl: any, method: string) {
       const ownsResponse = getRequestArgIndex(ctor.prototype, method);
       const value = await handler(...args);
       if (!ownsResponse) {
+        validateResponse(ctor.prototype, method, value);
         res.json(value);
       }
     } catch (error) {
@@ -87,12 +89,27 @@ async function getHandlerArguments(target: any, propertyKey: string, req: Reques
   }
   const bodyIndex = getBodyArgIndex(target.prototype, propertyKey);
   if (bodyIndex >= 0) {
-    try {
-      await validateBody(target.prototype, propertyKey, req.body);
-    } catch (errors) {
-      throw new BadRequestException(errors.join(','));
-    }
-    args[bodyIndex] = req.body;
+    args[bodyIndex] = await getBody(target.prototype, propertyKey, req);
   }
   return args;
+}
+
+async function getBody(target: Object, propertyKey: string | symbol, req: Request) {
+  const index = getBodyArgIndex(target, propertyKey);
+  const argTypes = Reflect.getMetadata('design:paramtypes', target, propertyKey);
+  const type = argTypes[index];
+  if (typeof type !== 'function') {
+    return req.body;
+  }
+  const typed = Object.create(type.prototype);
+  Object.assign(typed, req.body);
+  const errors = await validate(typed);
+  if (errors.length) {
+    throw new BadRequestException(errors.join('\n\n'));
+  }
+  return typed;
+}
+
+async function validateResponse(target: Object, propertyKey: string | symbol, response: any) {
+  return true;
 }
