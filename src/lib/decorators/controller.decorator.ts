@@ -21,7 +21,7 @@ export function Controller(config: ControllerConfig = {}): ClassDecorator {
   };
 }
 
-export function RegisterControllers(app: Application) {
+export function registerControllers(app: Application) {
   for (const Controller of ControllerSet) {
     const metadata: Required<ControllerConfig> = Reflect.getMetadata(ControllerKey, Controller);
     console.log('Registering controller: ' + metadata.path);

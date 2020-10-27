@@ -2,7 +2,7 @@ import { Request } from 'express';
 import { Body, Controller, Req, Route } from '../lib';
 import { GreetingBody } from './schemas/hello-name.schema';
 
-@Controller()
+@Controller({ path: '/decorator' })
 export class HelloWorld {
   @Route()
   public hello(@Req() req: Request) {
